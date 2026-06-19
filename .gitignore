@@ -1,0 +1,25 @@
+# dependencies and local environments
+node_modules/
+project_venv/
+
+# build output, caches, coverage
+dist/
+coverage/
+*.tsbuildinfo
+.cache/
+.eslintcache
+tmp/
+
+# logs
+*.log
+logs/
+
+# environment files (the example is tracked)
+.env
+.env.*
+!.env.example
+
+# editors and OS
+.DS_Store
+.idea/
+.vscode/

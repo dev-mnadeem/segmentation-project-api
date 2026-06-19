@@ -1,0 +1,41 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # Bound to localhost so the database is not exposed on the host's network.
+    ports:
+      - '127.0.0.1:7152:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: '7151'
+      PERSISTENCE: mongo
+      MONGODB_URI: mongodb://mongo:27017/pearlai
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-false}
+      JWT_SECRET: ${JWT_SECRET:-}
+      LABEL_SUGGESTER: ${LABEL_SUGGESTER:-heuristic}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-5}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    ports:
+      - '7151:7151'
+
+volumes:
+  mongo-data:
