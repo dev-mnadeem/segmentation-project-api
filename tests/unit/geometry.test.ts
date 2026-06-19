@@ -193,6 +193,45 @@ describe('boundingBox', () => {
   it('returns a zero box for an RLE mask with no foreground', () => {
     expect(boundingBox({ type: 'rle', size: [2, 2], counts: [4] })).toEqual([0, 0, 0, 0]);
   });
+
+  it('matches a per-pixel scan for RLE runs that cross column boundaries', () => {
+    const pixelScan = (seg: RleSegmentation) => {
+      const [height] = seg.size;
+      const xs: number[] = [];
+      const ys: number[] = [];
+      let cursor = 0;
+      seg.counts.forEach((run, index) => {
+        for (let offset = 0; index % 2 === 1 && offset < run; offset += 1) {
+          xs.push(Math.floor((cursor + offset) / height));
+          ys.push((cursor + offset) % height);
+        }
+        cursor += run;
+      });
+      if (xs.length === 0) return [0, 0, 0, 0];
+      const [minX, minY] = [Math.min(...xs), Math.min(...ys)];
+      return [minX, minY, Math.max(...xs) - minX + 1, Math.max(...ys) - minY + 1];
+    };
+
+    // Deterministic pseudo-random masks on a 7x5 frame.
+    let state = 42;
+    const next = () => (state = (state * 1103515245 + 12345) % 2147483648);
+    for (let trial = 0; trial < 200; trial += 1) {
+      const counts: number[] = [];
+      let remaining = 35;
+      while (remaining > 0) {
+        const run = Math.min(remaining, next() % 9);
+        counts.push(run);
+        remaining -= run;
+      }
+      const seg: RleSegmentation = { type: 'rle', size: [7, 5], counts };
+      expect(boundingBox(seg)).toEqual(pixelScan(seg));
+    }
+  });
+
+  it('bounds a full-frame RLE mask without visiting every pixel', () => {
+    const seg: RleSegmentation = { type: 'rle', size: [4000, 6000], counts: [0, 24_000_000] };
+    expect(boundingBox(seg)).toEqual([0, 0, 6000, 4000]);
+  });
 });
 
 describe('ringCount', () => {

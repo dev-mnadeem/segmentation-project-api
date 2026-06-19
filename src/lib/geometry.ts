@@ -82,6 +82,11 @@ function polygonBoundingBox(seg: PolygonSegmentation): BoundingBox {
 /**
  * Bounding box of an RLE mask. Runs are laid out in column-major order (COCO's
  * convention), so a flat index maps to `(x, y) = (floor(i / h), i % h)`.
+ *
+ * Works per run rather than per pixel: a run inside one column spans the rows
+ * between its ends, and a run that crosses a column boundary necessarily
+ * touches both the last row of one column and the first row of the next.
+ * A full-frame mask is one run, not `height * width` iterations.
  */
 function rleBoundingBox(seg: RleSegmentation): BoundingBox {
   const [height] = seg.size;
@@ -94,15 +99,16 @@ function rleBoundingBox(seg: RleSegmentation): BoundingBox {
   for (let i = 0; i < seg.counts.length; i += 1) {
     const run = seg.counts[i];
     if (i % 2 === 1 && run > 0) {
-      for (let offset = 0; offset < run; offset += 1) {
-        const flat = cursor + offset;
-        const x = Math.floor(flat / height);
-        const y = flat % height;
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-      }
+      const first = cursor;
+      const last = cursor + run - 1;
+      const firstColumn = Math.floor(first / height);
+      const lastColumn = Math.floor(last / height);
+      const top = firstColumn === lastColumn ? first % height : 0;
+      const bottom = firstColumn === lastColumn ? last % height : height - 1;
+      if (firstColumn < minX) minX = firstColumn;
+      if (lastColumn > maxX) maxX = lastColumn;
+      if (top < minY) minY = top;
+      if (bottom > maxY) maxY = bottom;
     }
     cursor += run;
   }
