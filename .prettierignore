@@ -1,5 +1,6 @@
 dist
 coverage
 node_modules
+project_venv
 package-lock.json
 .postman
