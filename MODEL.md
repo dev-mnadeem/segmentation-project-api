@@ -23,6 +23,9 @@ are `Date`, and `_id`, `__v` and `ObjectId` never leave
 collide on the unique index rather than becoming two accounts. A duplicate
 signup returns **409** whether the check or the index catches it.
 
+`role` is always `annotator` for accounts created through
+`POST /api/auth/signup`; the request body cannot choose it.
+
 `passwordHash` is `select: false`; `AuthService.login` is the only caller that
 asks for it, and no response shape includes it.
 
