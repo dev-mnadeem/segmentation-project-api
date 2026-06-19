@@ -25,6 +25,40 @@ describe('POST /api/annotations/suggest-label', () => {
     expect(response.body.suggestions[0].label).toBe('sign');
   });
 
+  it('measures each exemplar against its own image, not the query image', async () => {
+    const harness = createHarness();
+    const { projectId, imageId: smallImageId } = await seedProjectWithImage(harness, {
+      width: 100,
+      height: 100,
+    });
+    const large = await api(harness)
+      .post(`/api/projects/${projectId}/images`)
+      .send({ images: [{ uri: 'https://example.com/large.jpg', width: 1000, height: 1000 }] })
+      .expect(201);
+    const largeImageId = large.body.images[0].id as string;
+
+    // The same 70px square covers half of the small frame but a sliver of the
+    // large one, so only "road" is shaped like a half-frame mask.
+    await api(harness)
+      .post('/api/annotations')
+      .send({ image: smallImageId, label: 'road', segmentation: square(70) })
+      .expect(201);
+    await api(harness)
+      .post('/api/annotations')
+      .send({ image: largeImageId, label: 'car', segmentation: square(70) })
+      .expect(201);
+
+    const response = await api(harness)
+      .post('/api/annotations/suggest-label')
+      .send({ image: largeImageId, segmentation: square(700) })
+      .expect(200);
+
+    expect(response.body.suggestions[0].label).toBe('road');
+    expect(response.body.suggestions[0].confidence).toBeGreaterThan(
+      response.body.suggestions[1].confidence,
+    );
+  });
+
   it('returns no suggestions for a project with no annotations yet', async () => {
     const harness = createHarness();
     const { imageId } = await seedProjectWithImage(harness, { width: 100, height: 100 });

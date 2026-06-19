@@ -148,6 +148,14 @@ export class MongoImageRepository implements ImageRepository {
     return doc ? toImage(doc) : null;
   }
 
+  async findManyByIds(ids: string[]): Promise<Image[]> {
+    if (ids.length === 0) return [];
+    const docs = await ImageModel.find({ _id: { $in: ids.map(oid) } })
+      .lean<ImageDoc[]>()
+      .exec();
+    return docs.map(toImage);
+  }
+
   async createMany(inputs: CreateImageInput[], tx?: Transaction): Promise<Image[]> {
     const docs = inputs.map((input) => ({
       project: oid(input.projectId),

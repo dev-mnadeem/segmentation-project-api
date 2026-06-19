@@ -102,6 +102,7 @@ describe('HeuristicLabelSuggester', () => {
     exemplars,
     imageWidth: 100,
     imageHeight: 100,
+    exemplarImageSizes: new Map(),
   });
 
   it('identifies itself as the heuristic provider', async () => {

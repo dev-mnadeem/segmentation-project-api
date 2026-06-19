@@ -147,6 +147,13 @@ export class MemoryImageRepository implements ImageRepository {
     return image ? { ...image } : null;
   }
 
+  async findManyByIds(ids: string[]): Promise<Image[]> {
+    return ids
+      .map((id) => this.byId.get(id))
+      .filter((image): image is Image => Boolean(image))
+      .map((image) => ({ ...image }));
+  }
+
   async createMany(inputs: CreateImageInput[]): Promise<Image[]> {
     return inputs.map((input) => {
       const now = nextTimestamp();

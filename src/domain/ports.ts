@@ -83,6 +83,7 @@ export interface ListImagesQuery {
 
 export interface ImageRepository {
   findById(id: string): Promise<Image | null>;
+  findManyByIds(ids: string[]): Promise<Image[]>;
   createMany(inputs: CreateImageInput[], tx?: Transaction): Promise<Image[]>;
   list(query: ListImagesQuery): Promise<Page<Image>>;
   countByProject(projectId: string): Promise<number>;

@@ -24,11 +24,11 @@ export class HeuristicLabelSuggester implements LabelSuggester {
     const scores = new Map<string, number>();
 
     for (const exemplar of request.exemplars) {
-      const exemplarFeatures = extractFeatures(
-        exemplar.segmentation,
-        request.imageWidth,
-        request.imageHeight,
-      );
+      const frame = request.exemplarImageSizes.get(exemplar.imageId) ?? {
+        width: request.imageWidth,
+        height: request.imageHeight,
+      };
+      const exemplarFeatures = extractFeatures(exemplar.segmentation, frame.width, frame.height);
       const distance = featureDistance(request.features, exemplarFeatures);
       // Similarity decays smoothly with distance and never reaches zero, so a
       // label seen many times at moderate distance can still outrank a label

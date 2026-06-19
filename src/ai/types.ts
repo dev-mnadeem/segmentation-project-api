@@ -36,6 +36,17 @@ export interface SuggestLabelRequest {
   /** Image dimensions, so a provider can reason about absolute scale. */
   imageWidth: number;
   imageHeight: number;
+  /**
+   * Dimensions of the images the exemplars sit on, keyed by image id. A
+   * project's images need not share a size, and area ratios are only
+   * comparable when each mask is measured against its own frame.
+   */
+  exemplarImageSizes: ReadonlyMap<string, ImageSize>;
+}
+
+export interface ImageSize {
+  width: number;
+  height: number;
 }
 
 export interface SuggestLabelResult {

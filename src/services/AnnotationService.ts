@@ -185,6 +185,8 @@ export class AnnotationService {
       image.projectId,
       LABEL_SUGGESTION_SAMPLE_SIZE,
     );
+    const exemplarImageIds = [...new Set(exemplars.map((exemplar) => exemplar.imageId))];
+    const exemplarImages = await this.options.images.findManyByIds(exemplarImageIds);
 
     return this.options.labelSuggester.suggest({
       features: extractFeatures(segmentation, image.width, image.height),
@@ -192,6 +194,9 @@ export class AnnotationService {
       exemplars,
       imageWidth: image.width,
       imageHeight: image.height,
+      exemplarImageSizes: new Map(
+        exemplarImages.map(({ id, width, height }) => [id, { width, height }]),
+      ),
     });
   }
 
