@@ -16,7 +16,6 @@ export const signupBodyZ = z.object({
   name: nonBlankString(200),
   email: z.string().trim().toLowerCase().email().max(320),
   password: z.string().min(MIN_PASSWORD_LENGTH).max(200),
-  role: z.enum(['annotator', 'admin']).default('annotator'),
 });
 
 export const loginBodyZ = z.object({

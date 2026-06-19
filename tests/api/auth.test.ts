@@ -84,11 +84,14 @@ describe('POST /api/auth/signup', () => {
     expect(response.body.error.details).toHaveLength(3);
   });
 
-  it('rejects an unknown role', async () => {
-    await api(createHarness())
+  it('ignores a requested role, so signup cannot grant admin', async () => {
+    const response = await api(createHarness())
       .post('/api/auth/signup')
-      .send({ ...credentials, role: 'superuser' })
-      .expect(400);
+      .send({ ...credentials, role: 'admin' })
+      .expect(201);
+    expect(response.body.user.role).toBe('annotator');
+    const claims = jwt.verify(response.body.token, TEST_JWT_SECRET) as jwt.JwtPayload;
+    expect(claims.role).toBe('annotator');
   });
 });
 

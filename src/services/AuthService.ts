@@ -35,7 +35,9 @@ export class AuthService {
         name: input.name,
         email: input.email,
         passwordHash,
-        role: input.role,
+        // Signup is unauthenticated, so it can only ever create an annotator.
+        // Accepting a role here would let anyone mint an admin token.
+        role: 'annotator',
       });
     } catch (error) {
       // Two concurrent signups for the same address both pass the check above;
