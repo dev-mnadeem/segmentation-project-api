@@ -1,5 +1,5 @@
-import { writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { createApp } from '../src/app';
 import { parseEnv } from '../src/config/env';
 import { buildContainer } from '../src/container';
@@ -421,6 +421,7 @@ function main(): void {
   }
 
   const target = join(__dirname, '..', '.postman', 'PearlAI.API.postman_collection.json');
+  mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(buildCollection(), null, 2) + '\n');
   process.stdout.write(
     `Wrote ${target}\n${live.length} routes on the app, all covered by a request.\n`,
