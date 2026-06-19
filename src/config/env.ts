@@ -61,21 +61,32 @@ const EnvSchema = z
 
 export type Env = z.infer<typeof EnvSchema>;
 
-/** Parse an environment bag. Exported so tests can exercise it without `process.env`. */
+const ENV_KEYS = [
+  'NODE_ENV',
+  'PORT',
+  'PERSISTENCE',
+  'MONGODB_URI',
+  'LOG_LEVEL',
+  'JWT_SECRET',
+  'AUTH_REQUIRED',
+  'LABEL_SUGGESTER',
+  'ANTHROPIC_API_KEY',
+  'ANTHROPIC_MODEL',
+  'CORS_ORIGIN',
+] as const;
+
+/**
+ * Parse an environment bag. Exported so tests can exercise it without `process.env`.
+ *
+ * An empty value counts as unset. `.env.example` ships `JWT_SECRET=` and Compose
+ * passes `${JWT_SECRET:-}`, both of which arrive as `""`; without this, the
+ * optional fields would reject them and the documented setup would not boot.
+ */
 export function parseEnv(source: NodeJS.ProcessEnv = process.env): Env {
-  const result = EnvSchema.safeParse({
-    NODE_ENV: source.NODE_ENV,
-    PORT: source.PORT,
-    PERSISTENCE: source.PERSISTENCE,
-    MONGODB_URI: source.MONGODB_URI,
-    LOG_LEVEL: source.LOG_LEVEL,
-    JWT_SECRET: source.JWT_SECRET,
-    AUTH_REQUIRED: source.AUTH_REQUIRED,
-    LABEL_SUGGESTER: source.LABEL_SUGGESTER,
-    ANTHROPIC_API_KEY: source.ANTHROPIC_API_KEY,
-    ANTHROPIC_MODEL: source.ANTHROPIC_MODEL,
-    CORS_ORIGIN: source.CORS_ORIGIN,
-  });
+  const input = Object.fromEntries(
+    ENV_KEYS.map((key) => [key, source[key]?.trim() ? source[key] : undefined]),
+  );
+  const result = EnvSchema.safeParse(input);
 
   if (!result.success) {
     const detail = result.error.issues

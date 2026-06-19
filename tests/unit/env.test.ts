@@ -63,4 +63,26 @@ describe('parseEnv', () => {
   it('rejects an unknown log level', () => {
     expect(() => parseEnv({ ...base, LOG_LEVEL: 'chatty' })).toThrow(/LOG_LEVEL/);
   });
+
+  it('treats empty values as unset, as .env.example and Compose supply them', () => {
+    const env = parseEnv({
+      ...base,
+      JWT_SECRET: '',
+      ANTHROPIC_API_KEY: '',
+      AUTH_REQUIRED: '',
+      PORT: '',
+      CORS_ORIGIN: ' ',
+    });
+    expect(env.JWT_SECRET).toBeUndefined();
+    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+    expect(env.AUTH_REQUIRED).toBe(false);
+    expect(env.PORT).toBe(7151);
+    expect(env.CORS_ORIGIN).toBe('*');
+  });
+
+  it('still requires JWT_SECRET when AUTH_REQUIRED is on and the secret is blank', () => {
+    expect(() => parseEnv({ ...base, AUTH_REQUIRED: 'true', JWT_SECRET: '' })).toThrow(
+      /JWT_SECRET/,
+    );
+  });
 });
