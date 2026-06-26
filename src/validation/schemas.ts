@@ -47,7 +47,7 @@ const imageInputZ = z.object({
   height: z.number().int().positive().max(1_000_000),
   status: z.enum(['unassigned', 'in_progress', 'annotated']).default('unassigned'),
   assignedTo: objectIdZ.optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const bulkCreateImagesBodyZ = z.object({
@@ -70,7 +70,7 @@ export const createAnnotationBodyZ = z.object({
   /** Optional client-computed area. If present it must match the server's. */
   area: z.number().finite().nonnegative().optional(),
   createdBy: objectIdZ.optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const listAnnotationsQueryZ = paginationZ.extend({

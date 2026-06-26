@@ -1,0 +1,117 @@
+{
+  "mode": "In-memory annotation repositories; data lost on exit",
+  "exchanges": [
+    {
+      "request": "GET /api/health",
+      "status": 200,
+      "response": {
+        "service": "PearlAI API",
+        "status": "ok",
+        "uptimeSeconds": 1,
+        "dependencies": [
+          {
+            "name": "persistence",
+            "state": "skipped",
+            "detail": "in-memory"
+          }
+        ]
+      }
+    },
+    {
+      "request": "POST /api/projects",
+      "status": 201,
+      "response": {
+        "id": "069b4ab19d02dafdfa6bf602",
+        "name": "Synthetic annotation project",
+        "status": "active",
+        "createdAt": "2026-10-28T15:53:00.113Z",
+        "updatedAt": "2026-10-28T15:53:00.113Z"
+      }
+    },
+    {
+      "request": "POST /api/projects/069b4ab19d02dafdfa6bf602/images",
+      "status": 201,
+      "response": {
+        "inserted": 1,
+        "images": [
+          {
+            "id": "18c7a906d7ed041e76af6ace",
+            "projectId": "069b4ab19d02dafdfa6bf602",
+            "uri": "https://example.com/synthetic-image.png",
+            "width": 100,
+            "height": 100,
+            "status": "unassigned",
+            "createdAt": "2026-10-28T15:53:00.116Z",
+            "updatedAt": "2026-10-28T15:53:00.116Z"
+          }
+        ]
+      }
+    },
+    {
+      "request": "POST /api/annotations",
+      "status": 201,
+      "response": {
+        "id": "700b4d564d724f384798af45",
+        "projectId": "069b4ab19d02dafdfa6bf602",
+        "imageId": "18c7a906d7ed041e76af6ace",
+        "label": "example",
+        "segmentation": {
+          "type": "polygon",
+          "polygons": [
+            {
+              "rings": [
+                [
+                  [
+                    10,
+                    10
+                  ],
+                  [
+                    30,
+                    10
+                  ],
+                  [
+                    30,
+                    20
+                  ],
+                  [
+                    10,
+                    20
+                  ]
+                ]
+              ]
+            }
+          ]
+        },
+        "area": 200,
+        "createdAt": "2026-10-28T15:53:00.118Z",
+        "updatedAt": "2026-10-28T15:53:00.118Z"
+      }
+    },
+    {
+      "request": "POST /api/annotations",
+      "status": 400,
+      "response": {
+        "error": {
+          "code": "bad_request",
+          "message": "Client-supplied area 999 does not match server-computed area 200",
+          "requestId": "40225224-8f9e-481f-b193-0da7aa685482"
+        }
+      }
+    },
+    {
+      "request": "GET /api/projects/069b4ab19d02dafdfa6bf602/stats",
+      "status": 200,
+      "response": {
+        "projectId": "069b4ab19d02dafdfa6bf602",
+        "images": 1,
+        "annotations": 1,
+        "perAnnotator": [
+          {
+            "annotatorId": null,
+            "count": 1
+          }
+        ]
+      }
+    }
+  ]
+}

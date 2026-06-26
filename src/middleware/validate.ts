@@ -17,7 +17,7 @@ export interface RequestSchemas {
 export function validate(schemas: RequestSchemas): RequestHandler {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
-      if (schemas.params) req.params = schemas.params.parse(req.params);
+      if (schemas.params) req.params = schemas.params.parse(req.params) as typeof req.params;
       if (schemas.query) {
         // `req.query` has only a getter on Express 5-style setups; assigning to
         // the property directly is not safe, so redefine it.

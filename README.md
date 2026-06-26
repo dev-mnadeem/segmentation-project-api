@@ -245,3 +245,17 @@ status, and the transaction boundary that flips an image to `annotated`.
 - **The rate limiter is in-process**, so behind more than one instance each gets
   its own counter.
 - **No refresh tokens.** Access tokens live 12 hours; that is the whole story.
+
+## Verified native example
+
+![Native API workflow](docs/screenshots/native-api.png)
+
+The native run uses in-memory repositories; it creates a project and image, stores a polygon with server-computed area 200, rejects a mismatched client area, and reads project statistics. No hosted label provider was called.
+[Captured responses](docs/native-api.json) use disposable fixture data.
+
+The local suite, TypeScript build, and production dependency audit were rerun
+on Node 22. Docker execution remains unverified in this environment.
+
+## Author
+
+[**Muhammad Nadeem**](https://github.com/dev-mnadeem)
